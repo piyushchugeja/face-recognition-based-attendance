@@ -39,7 +39,7 @@ def add_column():
         last += 1
         # initialise all values in the new column as Absent
         for i in range(2, sheet_obj.max_row+1):
-            cell = sheet_obj.cell(row=i, column=last+1)
+            cell = sheet_obj.cell(row=i, column=last)
             cell.value = 'A'
         wb_obj.save(path)
     return last
