@@ -36,11 +36,11 @@ def get_col_name(colnum):
     return cell.value
 
 def write_attendance_in_xl(name, data, count):
-    roll_no = int(name.split('-')[0])
-    stud_name = name.split('-')[1]
+    roll_no = int(name.split('_')[0])
+    stud_name = " ".join(name.split('_')[1:])
     lastColumn = add_column()
     wb_obj = openpyxl.load_workbook(path) 
-    sheet_obj = wb_obj.active
+    sheet_obj = wb_obj['Sheet1']
     for key, value in data.items():
         if stud_name in value and roll_no in value:
             cell = sheet_obj.cell(row=key, column=lastColumn)

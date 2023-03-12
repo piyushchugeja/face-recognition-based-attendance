@@ -4,6 +4,7 @@ import time
 import openpyxl
 import face_recognition
 
+
 def add_the_face():
     ######### if these directory doesn't exist, make them #######
     try:
@@ -12,19 +13,24 @@ def add_the_face():
         pass
 
     ############### take name and roll no as input #################
-    roll = input('Enter roll number: ')
-    while not roll.isdigit():
-        roll = input('Enter your roll no --> ')
-    name = input('Enter your name --> ')
+    print("Enter student's details:")
+    roll = input('Roll number: ')
+    while roll is not None and not roll.isdigit():
+        roll = input('Roll number: ')
+    name = input('Name: ')
+    phone_no = input('Phone number: ')
+    parent_name = input('Parent name: ')
+    parent_no = input('Parent number: ')
 
-    imageName = roll+'-'+name
+    imageName = roll + '_' + name.replace(' ', '_')
 
     ######### add image in folder ##################
-    if imageName + '.png' in os.listdir('images') or imageName + '.jpg' in os.listdir('images'):
+    if imageName + '.png' in os.listdir(
+            'images') or imageName + '.jpg' in os.listdir('images'):
         print('User already exists')
         input('\nPress any key to continue...')
 
-    else:    
+    else:
         cap = cv2.VideoCapture(0)
         i = 0
         print()
@@ -32,33 +38,40 @@ def add_the_face():
             print(f'Capturing starts in {5-i} seconds...')
             time.sleep(1)
         print('Taking photo...')
-
+        if not cap.isOpened():
+            print('Camera not found')
         ret, frame = cap.read()
         cv2.imshow("Taking your picture, be steady", frame)
         facesCurrentFrame = face_recognition.face_locations(frame)
-        if len(facesCurrentFrame) == 0:
-            print('No face found')
-            input('Press any key to continue...')
-            return
-        elif len(facesCurrentFrame) > 1:
+        if len(facesCurrentFrame) > 1:
             print('More than one face found')
             input('Press any key to continue...')
-            return
         if cv2.imwrite('images/' + imageName + '.png', frame):
             print('Image saved successfully')
-            input('Press any key to continue...')
+            input('Press enter to continue...')
             try:
                 workbook = openpyxl.load_workbook('Attendance.xlsx')
-                sheet = workbook.active
+                sheet = workbook['Student details']
                 last_row = sheet.max_row
                 last_column = sheet.max_column
-                sheet.cell(row=last_row+1, column=1).value = name
-                sheet.cell(row=last_row+1, column=2).value = int(roll)
-                for i in range(3, last_column+1):
-                    sheet.cell(row=last_row+1, column=i).value = 'A'
+                sheet.cell(row=last_row + 1, column=1).value = roll
+                sheet.cell(row=last_row + 1, column=2).value = name
+                sheet.cell(row=last_row + 1, column=3).value = phone_no
+                sheet.cell(row=last_row + 1, column=4).value = parent_name
+                sheet.cell(row=last_row + 1, column=5).value = parent_no
+
+                sheet = workbook['Sheet1']
+                last_row = sheet.max_row
+                last_column = sheet.max_column
+                sheet.cell(row=last_row + 1, column=1).value = roll
+                sheet.cell(row=last_row + 1, column=2).value = name
+                for i in range(2, last_column + 1):
+                    sheet.cell(row=last_row + 1, column=i).value = 'A'
                 workbook.save('Attendance.xlsx')
             except:
-                print('Error in saving data.\nMust be the following reasons: \n1. Attendance.xlsx is not present in the current directory\n2. Attendance.xlsx is not in the correct format\n3. Roll number is not a number')
+                print(
+                    'Error in saving data.\nMust be the following reasons: \n1. Attendance.xlsx is not present in the current directory\n2. Attendance.xlsx is not in the correct format\n3. Roll number is not a number'
+                )
         else:
             print('Image not saved\nPlease try again')
         cv2.destroyAllWindows()
