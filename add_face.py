@@ -4,7 +4,6 @@ import time
 import openpyxl
 import face_recognition
 
-
 def add_the_face():
     ######### if these directory doesn't exist, make them #######
     try:
@@ -18,9 +17,9 @@ def add_the_face():
     while roll is not None and not roll.isdigit():
         roll = input('Roll number: ')
     name = input('Name: ')
-    phone_no = input('Phone number: ')
+    email = input('Email: ')
     parent_name = input('Parent name: ')
-    parent_no = input('Parent number: ')
+    parent_email = input('Parent email: ')
 
     imageName = roll + '_' + name.replace(' ', '_')
 
@@ -54,19 +53,22 @@ def add_the_face():
                 sheet = workbook['Student details']
                 last_row = sheet.max_row
                 last_column = sheet.max_column
-                sheet.cell(row=last_row + 1, column=1).value = roll
+                sheet.cell(row=last_row + 1, column=1).value = int(roll)
                 sheet.cell(row=last_row + 1, column=2).value = name
-                sheet.cell(row=last_row + 1, column=3).value = phone_no
+                sheet.cell(row=last_row + 1, column=3).value = email
                 sheet.cell(row=last_row + 1, column=4).value = parent_name
-                sheet.cell(row=last_row + 1, column=5).value = parent_no
+                sheet.cell(row=last_row + 1, column=5).value = parent_email
 
-                sheet = workbook['Sheet1']
-                last_row = sheet.max_row
-                last_column = sheet.max_column
-                sheet.cell(row=last_row + 1, column=1).value = roll
-                sheet.cell(row=last_row + 1, column=2).value = name
-                for i in range(2, last_column + 1):
-                    sheet.cell(row=last_row + 1, column=i).value = 'A'
+                for sheet_name in workbook.sheetnames:
+                    if sheet_name == 'Student details':
+                        continue
+                    sheet = workbook[sheet_name]
+                    last_row = sheet.max_row
+                    last_column = sheet.max_column
+                    sheet.cell(row=last_row + 1, column=1).value = int(roll)
+                    sheet.cell(row=last_row + 1, column=2).value = name
+                    for i in range(2, last_column + 1):
+                        sheet.cell(row=last_row + 1, column=i).value = 'A'
                 workbook.save('Attendance.xlsx')
             except:
                 print(
