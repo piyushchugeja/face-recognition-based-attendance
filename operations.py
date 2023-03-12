@@ -76,7 +76,8 @@ def fetch_attendance(data):
     for key, value in data.items():
         if roll_no in value:
             attendance_records = PrettyTable(['Date', 'In-time', 'Out-time', 'Hours'])
-            print ("\nName: ", value[1])
+            print("\nAttendance records for the month of ", datetime.now().strftime("%B"))
+            print ("Name: ", value[1])
             for i in range(3, sheet_obj.max_column+1):
                 cell = sheet_obj.cell(row=key, column=i)
                 if cell.value.startswith("In-time:"):
