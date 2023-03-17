@@ -70,43 +70,42 @@ def take_attendance():
         print("Attendance was marked for",count, "student(s) out of", len(attendanceList), "student(s) whose faces were detected")
     else:
         print("No student was detected")
-    input('Press any key to continue...')
-    return
 
-try:
-    os.makedirs('images')
-except:
-    pass
-choice = 0
-while choice != "4":
-    os.system('cls')
-    print('Press 1 to take attendance')
-    print('Press 2 to fetch attendance')
-    print('Press 3 to add new face')
-    print('Press 4 to exit')
-    choice = input('Enter your choice: ')
-    if choice == "1":
-        take_attendance()
-    elif choice == "2":
-        fetch_attendance(get_dict())
-    elif choice == "3":
-        while passwordCount < 3:
-            password = input('Enter password or enter -1 to exit: ')
-            if password == 'group1_dse':
-                add_the_face()
-                break
-            elif password == '-1':
-                break
-            else:
-                passwordCount += 1
-                print('Wrong password')
-        if passwordCount == 3:
-            print('You have entered a wrong password 3 times, you will not be allowed to add new face')
-            override = input('Press any key to continue...')
-            if override == 'admin@override':
-                passwordCount = 0
-    elif choice == "4":
+def cli_execution():
+    try:
+        os.makedirs('images')
+    except:
         pass
-    else:
-        print('Invalid choice')
-        input('Press any key to continue...')
+    choice = 0
+    while choice != "4":
+        os.system('cls')
+        print('Press 1 to take attendance')
+        print('Press 2 to fetch attendance')
+        print('Press 3 to add new face')
+        print('Press 4 to exit')
+        choice = input('Enter your choice: ')
+        if choice == "1":
+            take_attendance()
+        elif choice == "2":
+            fetch_attendance(get_dict())
+        elif choice == "3":
+            while passwordCount < 3:
+                password = input('Enter password or enter -1 to exit: ')
+                if password == 'group1_dse':
+                    add_the_face()
+                    break
+                elif password == '-1':
+                    break
+                else:
+                    passwordCount += 1
+                    print('Wrong password')
+            if passwordCount == 3:
+                print('You have entered a wrong password 3 times, you will not be allowed to add new face')
+                override = input('Press any key to continue...')
+                if override == 'admin@override':
+                    passwordCount = 0
+        elif choice == "4":
+            pass
+        else:
+            print('Invalid choice')
+            input('Press any key to continue...')

@@ -1,4 +1,2 @@
-import openpyxl
-wb = openpyxl.load_workbook('Attendance.xlsx')
-for sheet in wb.sheetnames:
-    print(sheet)
+import add_face
+add_face.add_the_face()
