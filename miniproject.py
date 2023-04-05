@@ -2,6 +2,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from main import *
 from add_face import *
 from operations import *
+import shutil
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -367,13 +368,20 @@ class Ui_MainWindow(object):
         self.label_25.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_25.setObjectName("label_25")
         self.gridLayout_5.addWidget(self.label_25, 13, 1, 1, 1)
-        self.student_email = QtWidgets.QLineEdit(self.gridLayoutWidget_5)
+        self.student_name_2 = QtWidgets.QLineEdit(self.gridLayoutWidget_5)
         font = QtGui.QFont()
         font.setFamily("Lucida Bright")
         font.setPointSize(12)
-        self.student_email.setFont(font)
-        self.student_email.setObjectName("student_email")
-        self.gridLayout_5.addWidget(self.student_email, 7, 1, 1, 1)
+        self.student_name_2.setFont(font)
+        self.student_name_2.setObjectName("student_name_2")
+        self.gridLayout_5.addWidget(self.student_name_2, 5, 1, 1, 1)
+        self.student_rollno = QtWidgets.QLineEdit(self.gridLayoutWidget_5)
+        font = QtGui.QFont()
+        font.setFamily("Lucida Bright")
+        font.setPointSize(12)
+        self.student_rollno.setFont(font)
+        self.student_rollno.setObjectName("student_rollno")
+        self.gridLayout_5.addWidget(self.student_rollno, 6, 1, 1, 1)
         self.label_32 = QtWidgets.QLabel(self.gridLayoutWidget_5)
         font = QtGui.QFont()
         font.setFamily("Lucida Bright")
@@ -381,6 +389,13 @@ class Ui_MainWindow(object):
         self.label_32.setFont(font)
         self.label_32.setObjectName("label_32")
         self.gridLayout_5.addWidget(self.label_32, 9, 0, 1, 1)
+        self.student_email = QtWidgets.QLineEdit(self.gridLayoutWidget_5)
+        font = QtGui.QFont()
+        font.setFamily("Lucida Bright")
+        font.setPointSize(12)
+        self.student_email.setFont(font)
+        self.student_email.setObjectName("student_email")
+        self.gridLayout_5.addWidget(self.student_email, 7, 1, 1, 1)
         self.parent_name = QtWidgets.QLineEdit(self.gridLayoutWidget_5)
         font = QtGui.QFont()
         font.setFamily("Lucida Bright")
@@ -411,13 +426,7 @@ class Ui_MainWindow(object):
         self.label_28.setFont(font)
         self.label_28.setObjectName("label_28")
         self.gridLayout_5.addWidget(self.label_28, 5, 0, 1, 1)
-        self.student_name_2 = QtWidgets.QLineEdit(self.gridLayoutWidget_5)
-        font = QtGui.QFont()
-        font.setFamily("Lucida Bright")
-        font.setPointSize(12)
-        self.student_name_2.setFont(font)
-        self.student_name_2.setObjectName("student_name_2")
-        self.gridLayout_5.addWidget(self.student_name_2, 5, 1, 1, 1)
+        
         self.label_30 = QtWidgets.QLabel(self.gridLayoutWidget_5)
         font = QtGui.QFont()
         font.setFamily("Lucida Bright")
@@ -455,13 +464,7 @@ class Ui_MainWindow(object):
         self.upload_file.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.upload_file.setObjectName("upload_file")
         self.gridLayout_5.addWidget(self.upload_file, 10, 1, 1, 1)
-        self.student_rollno = QtWidgets.QLineEdit(self.gridLayoutWidget_5)
-        font = QtGui.QFont()
-        font.setFamily("Lucida Bright")
-        font.setPointSize(12)
-        self.student_rollno.setFont(font)
-        self.student_rollno.setObjectName("student_rollno")
-        self.gridLayout_5.addWidget(self.student_rollno, 6, 1, 1, 1)
+        
         self.add_db = QtWidgets.QPushButton(self.gridLayoutWidget_5)
         font = QtGui.QFont()
         font.setFamily("Lucida Bright")
@@ -795,9 +798,6 @@ class Ui_MainWindow(object):
         self.view_attendance.clicked.connect(self.view_attendance_page)
         self.check_attendance.clicked.connect(self.check_attendance_page)
 
-
-
-
         # self.admin_login.clicked.connect(self.admin_login_page)
         # ADMIN
         #     new student
@@ -823,9 +823,7 @@ class Ui_MainWindow(object):
         #    send email
         self.add_db_4.clicked.connect(self.send_email_db)
 
-
-
-        # student buttons
+       # student buttons
         self.student1.clicked.connect(self.student_back)
         self.student2.clicked.connect(self.student_back)
         self.student3.clicked.connect(self.student_back)
@@ -842,7 +840,6 @@ class Ui_MainWindow(object):
         self.teacher2.clicked.connect(self.teacher_back)
         self.teacher3.clicked.connect(self.teacher_back)
 
-
     def student_back(self):
         self.stackedWidget.setCurrentIndex(0)
 
@@ -852,14 +849,10 @@ class Ui_MainWindow(object):
     def teacher_back(self):
         self.stackedWidget.setCurrentIndex(6)
 
-
-
-
     def take_attendance(self):
         take_attendance()
 
     # open camera
-
     def view_attendance_page(self):
         self.stackedWidget.setCurrentIndex(1)
 
@@ -883,8 +876,12 @@ class Ui_MainWindow(object):
                     cell = sheet_obj.cell(row=key, column=i)
                     if cell.value.startswith("In-time:"):
                         in_time = cell.value.split(' ')[1]
-                        out_time = cell.value.split(' ')[3]
-                        hours = str((datetime.strptime(out_time, '%H:%M:%S') - datetime.strptime(in_time, '%H:%M:%S')).total_seconds()/3600)[:4]
+                        try:
+                            out_time = cell.value.split(' ')[3]
+                            hours = str((datetime.strptime(out_time, '%H:%M:%S') - datetime.strptime(in_time, '%H:%M:%S')).total_seconds()/3600)[:4]   
+                        except:
+                            out_time = "Unavailable"
+                            hours = "-"
                         item_date = QtWidgets.QTableWidgetItem(get_col_name(i))
                         item_in_time = QtWidgets.QTableWidgetItem(in_time)
                         item_out_time = QtWidgets.QTableWidgetItem(out_time)
@@ -925,15 +922,68 @@ class Ui_MainWindow(object):
         self.stackedWidget.setCurrentIndex(5)
 
     def upload_file_db(self):
-        # CLick user's image
-        add_the_face()
-
+        fileDialog = QtWidgets.QFileDialog()
+        fileDialog.setFileMode(QtWidgets.QFileDialog.AnyFile)
+        fileDialog.setNameFilter("Images (*.jpg *.png *.jpeg)")
+        fileDialog.setViewMode(QtWidgets.QFileDialog.Detail)
+        if fileDialog.exec_():
+            file_name = fileDialog.selectedFiles()[0]
+            self.upload_file.setText(file_name)
+            self.upload_file.setStyleSheet("color: green")
+            self.upload_file.setEnabled(False)
+        
     def add_student_db(self):
-        print("add student")
-        self.stackedWidget.setCurrentIndex(7)
+        name = self.student_name_2.text()
+        parent_name = self.parent_name.text()
+        email = self.student_email.text()
+        rollno = self.student_rollno.text()
+        parent_email = self.parent_email.text()
+        student_photo = self.upload_file.text()
+        error_dialog = QtWidgets.QMessageBox()
+        error_dialog.setWindowTitle("Attendance System")
+        if "" in {name, parent_name, email, rollno, parent_email, student_photo}:
+            error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
+            error_dialog.setText("It seems like you have not filled all the fields. Please fill all the fields and try again.")
+            error_dialog.exec_()
+        else:
+            imageName = rollno + '_' + name.replace(' ', '_')
+            if imageName + '.png' in os.listdir('images') or imageName + '.jpg' in os.listdir('images'):
+                error_dialog.setIcon(QtWidgets.QMessageBox.Information)
+                error_dialog.setText("This student already exists. If you think this is an error, please contact the developer.")
+                error_dialog.exec_()
+            else:
+                shutil.copy(student_photo, 'images/' + imageName + '.png')
+                try:
+                    workbook = openpyxl.load_workbook('Attendance.xlsx')
+                    sheet = workbook['Details']
+                    last_row = sheet.max_row
+                    last_column = sheet.max_column
+                    sheet.cell(row=last_row + 1, column=1).value = int(rollno)
+                    sheet.cell(row=last_row + 1, column=2).value = name
+                    sheet.cell(row=last_row + 1, column=3).value = email
+                    sheet.cell(row=last_row + 1, column=4).value = parent_name
+                    sheet.cell(row=last_row + 1, column=5).value = parent_email
 
-    #     add student to database
-
+                    for sheet_name in workbook.sheetnames:
+                        if sheet_name == 'Details':
+                            continue
+                        sheet = workbook[sheet_name]
+                        last_row = sheet.max_row
+                        last_column = sheet.max_column
+                        sheet.cell(row=last_row + 1, column=1).value = int(rollno)
+                        sheet.cell(row=last_row + 1, column=2).value = name
+                        for i in range(2, last_column + 1):
+                            sheet.cell(row=last_row + 1, column=i).value = 'A'
+                    workbook.save('Attendance.xlsx')
+                    error_dialog.setIcon(QtWidgets.QMessageBox.Information)
+                    error_dialog.setText('The student has been added successfully.')
+                    error_dialog.exec_()
+                except:
+                    error_dialog.setIcon(QtWidgets.QMessageBox.Warning)
+                    error_dialog.setText('Error in saving data.\nMust be the following reasons: \n1. Attendance.xlsx is not present in the current directory\n2. Attendance.xlsx is not in the correct format\n3. Roll number is not a number')
+                    error_dialog.exec_()
+        self.stackedWidget.setCurrentIndex(3)
+                    
     def delete_student_db(self):
         print("delete student")
 
@@ -980,7 +1030,7 @@ class Ui_MainWindow(object):
         self.label_30.setText(_translate("MainWindow", "Parent name:"))
         self.label_33.setText(_translate("MainWindow", "Student Photo:"))
         self.label_29.setText(_translate("MainWindow", "Roll number:"))
-        self.upload_file.setText(_translate("MainWindow", "Click picture"))
+        self.upload_file.setText(_translate("MainWindow", "Upload picture"))
         self.add_db.setText(_translate("MainWindow", "Add Student"))
         self.admin2.setText(_translate("MainWindow", "Back"))
         self.label_39.setText(_translate("MainWindow", "Roll number:"))
@@ -1006,7 +1056,8 @@ class Ui_MainWindow(object):
         self.label_54.setText(_translate("MainWindow", "Issue / Reason:"))
         self.label_51.setText(_translate("MainWindow", "Developed by Group Flip-flops"))
         self.label_52.setText(_translate("MainWindow", "Email"))
-
+            
+            
 import sys
 app = QtWidgets.QApplication(sys.argv)
 MainWindow = QtWidgets.QMainWindow()

@@ -24,8 +24,7 @@ def add_the_face():
     imageName = roll + '_' + name.replace(' ', '_')
 
     ######### add image in folder ##################
-    if imageName + '.png' in os.listdir(
-            'images') or imageName + '.jpg' in os.listdir('images'):
+    if imageName + '.png' in os.listdir('images') or imageName + '.jpg' in os.listdir('images'):
         print('User already exists')
         input('\nPress any key to continue...')
 
@@ -50,7 +49,7 @@ def add_the_face():
             input('Press enter to continue...')
             try:
                 workbook = openpyxl.load_workbook('Attendance.xlsx')
-                sheet = workbook['Student details']
+                sheet = workbook['Details']
                 last_row = sheet.max_row
                 last_column = sheet.max_column
                 sheet.cell(row=last_row + 1, column=1).value = int(roll)
@@ -60,7 +59,7 @@ def add_the_face():
                 sheet.cell(row=last_row + 1, column=5).value = parent_email
 
                 for sheet_name in workbook.sheetnames:
-                    if sheet_name == 'Student details':
+                    if sheet_name == 'Details':
                         continue
                     sheet = workbook[sheet_name]
                     last_row = sheet.max_row

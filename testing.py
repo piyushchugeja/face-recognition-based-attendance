@@ -1,2 +1,2 @@
-import add_face
-add_face.add_the_face()
+import operations
+operations.send_monthly_attendance()
