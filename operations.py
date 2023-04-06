@@ -46,10 +46,10 @@ def add_column():
     return last
 
 def get_col_name(colnum):
-    wb_obj = openpyxl.load_workbook(path) 
-    sheet_obj = wb_obj.active 
+    wb_obj = openpyxl.load_workbook(path)
+    sheet_obj = wb_obj[datetime.now().strftime("%B")]
     cell = sheet_obj.cell(row=1, column=colnum)
-    return cell.value
+    return str(cell.value)
 
 def write_attendance_in_xl(name, data, count):
     roll_no = int(name.split('_')[0])
