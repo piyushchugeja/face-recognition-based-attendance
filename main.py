@@ -5,8 +5,8 @@ import shutil
 import re
 
 class Ui_MainWindow(object):
-    __admin = False
     def setupUi(self, MainWindow):
+        self.__admin = False
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(415, 455)
         MainWindow.setMinimumSize(QtCore.QSize(415, 455))
@@ -171,6 +171,7 @@ class Ui_MainWindow(object):
         font.setPointSize(12)
         self.admin_password.setFont(font)
         self.admin_password.setObjectName("admin_password")
+        self.admin_password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.gridLayout_3.addWidget(self.admin_password, 3, 1, 1, 1)
         self.label_17 = QtWidgets.QLabel(self.gridLayoutWidget_3)
         font = QtGui.QFont()
@@ -442,6 +443,7 @@ class Ui_MainWindow(object):
         self.emp_add.setFont(font)
         self.emp_add.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.emp_add.setObjectName("emp_add")
+        self.emp_add.clicked.connect(self.add_employee_in_xl)
         self.gridLayout_5.addWidget(self.emp_add, 13, 1, 1, 1)
         self.stackedWidget.addWidget(self.admin_add_employee)
         self.admin_delete_employee = QtWidgets.QWidget()
@@ -487,6 +489,7 @@ class Ui_MainWindow(object):
         self.back_adminp.setFont(font)
         self.back_adminp.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.back_adminp.setObjectName("back_adminp")
+        self.back_adminp.clicked.connect(self.back_admin)
         self.gridLayout_6.addWidget(self.back_adminp, 6, 1, 1, 1)
         self.del_emp_id = QtWidgets.QLineEdit(self.gridLayoutWidget_6)
         font = QtGui.QFont()
@@ -502,13 +505,19 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         self.stackedWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        
+        self.error_dialog = QtWidgets.QMessageBox()
+        self.error_dialog.setWindowTitle("Attendance System")
+        self.error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
+        self.error_dialog.setWindowIcon(QtGui.QIcon('icon.png'))
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Attendance System"))
+        MainWindow.setWindowIcon(QtGui.QIcon('icon.png'))
         self.view_attendance.setText(_translate("MainWindow", "View Attendance"))
         self.take_attendance.setText(_translate("MainWindow", "Take Attendance"))
-        self.label.setText(_translate("MainWindow", "Attendance System"))
+        self.label.setPixmap(QtGui.QPixmap("label.png"))
         self.goto_admin.setText(_translate("MainWindow", "Admin >"))
         self.check_attendance.setText(_translate("MainWindow", "Check"))
         self.label_12.setText(_translate("MainWindow", "Enter ID"))
@@ -600,61 +609,67 @@ class Ui_MainWindow(object):
         self.stackedWidget.setCurrentIndex(0)
     
     def login(self):
-        print("login")
-        
+        username = self.admin_name.text()
+        password = self.admin_password.text()
+        if not self.__admin:
+            if "" not in {username, password}:
+                if username == "admin" and password == "admin":
+                    self.stackedWidget.setCurrentIndex(3)
+                    self.__admin = True
+                else:
+                    self.error_dialog.setText("Invalid username or password")
+                    self.error_dialog.exec_()
+            else:
+                self.error_dialog.setText("Please enter username and password")
+                self.error_dialog.exec_()
+        else:
+            self.stackedWidget.setCurrentIndex(3)
+                          
     def delete_employee_clicked(self):
         self.stackedWidget.setCurrentIndex(5)
     
-    def add_employee_clicked(self):
+    def add_employee_in_xl(self):
         emp_id = self.emp_id.text()
         name = self.emp_name.text()
         email = self.emp_email.text()
         phone = self.emp_phno.text()
         dob = self.emp_dob.text()
         picture = self.upload_pic.text()
-        error_dialog = QtWidgets.QMessageBox()
-        error_dialog.setWindowTitle("Attendance System")
         email_pattern = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
         phone_pattern = re.compile(r"^[0-9]{10}$")
         emp_id_pattern = re.compile(r"^[0-9]{2,}$")
         name_pattern = re.compile(r"^[a-zA-Z ]+$")
         if not emp_id_pattern.match(emp_id):
-            error_dialog.setText("Invalid Employee ID")
-            error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
-            error_dialog.exec_()
+            self.error_dialog.setText("Invalid Employee ID")
+            self.error_dialog.exec_()
             
         elif not name_pattern.match(name):
-            error_dialog.setText("Invalid Name")
-            error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
-            error_dialog.exec_()
+            self.error_dialog.setText("Invalid Name")
+            self.error_dialog.exec_()
     
         elif not email_pattern.match(email):
-            error_dialog.setText("Invalid Email")
-            error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
-            error_dialog.exec_()
+            self.error_dialog.setText("Invalid Email")
+            self.error_dialog.exec_()
         
         elif not phone_pattern.match(phone):
-            error_dialog.setText("Invalid Phone Number")
-            error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
-            error_dialog.exec_()
+            self.error_dialog.setText("Invalid Phone Number")
+            self.error_dialog.exec_()
             
         dob_date = datetime.strptime(dob, "%d/%m/%Y")
         if dob_date > datetime.now():
-            error_dialog.setText("Invalid Date of Birth")
-            error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
-            error_dialog.exec_()
+            self.error_dialog.setText("Invalid Date of Birth")
+            self.error_dialog.exec_()
 
         if picture == "" or picture == "Upload":
-            error_dialog.setText("Upload a proper picture!")
-            error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
-            error_dialog.exec_()
+            self.error_dialog.setText("Upload a proper picture!")
+            self.error_dialog.exec_()
         
         else:
             imageName = emp_id + '_' + name.replace(' ', '_')
             if imageName + '.png' in os.listdir('images') or imageName + '.jpg' in os.listdir('images'):
-                error_dialog.setIcon(QtWidgets.QMessageBox.Information)
-                error_dialog.setText("This student already exists. If you think this is an error, please contact the developer.")
-                error_dialog.exec_()
+                self.error_dialog.setIcon(QtWidgets.QMessageBox.Information)
+                self.error_dialog.setText("This employee already exists. If you think this is an error, please contact the developer.")
+                self.error_dialog.exec_()
             else:
                 shutil.copy(picture, 'images/' + imageName + '.png')
                 try:
@@ -667,7 +682,6 @@ class Ui_MainWindow(object):
                     sheet.cell(row=last_row + 1, column=3).value = email
                     sheet.cell(row=last_row + 1, column=4).value = phone
                     sheet.cell(row=last_row + 1, column=5).value = dob
-
                     for sheet_name in workbook.sheetnames:
                         if sheet_name == 'Details':
                             continue
@@ -676,18 +690,20 @@ class Ui_MainWindow(object):
                         last_column = sheet.max_column
                         sheet.cell(row=last_row + 1, column=1).value = int(emp_id)
                         sheet.cell(row=last_row + 1, column=2).value = name
-                        for i in range(2, last_column + 1):
+                        for i in range(3, last_column + 1):
                             sheet.cell(row=last_row + 1, column=i).value = 'A'
                     workbook.save('Attendance.xlsx')
-                    error_dialog.setIcon(QtWidgets.QMessageBox.Information)
-                    error_dialog.setText('The student has been added successfully.')
-                    error_dialog.exec_()
+                    self.error_dialog.setIcon(QtWidgets.QMessageBox.Information)
+                    self.error_dialog.setText('The employee has been added successfully.')
+                    self.error_dialog.exec_()
                 except:
-                    error_dialog.setIcon(QtWidgets.QMessageBox.Warning)
-                    error_dialog.setText('Error in saving data.\nMust be the following reasons: \n1. Attendance.xlsx is not present in the current directory\n2. Attendance.xlsx is not in the correct format\n3. Roll number is not a number')
-                    error_dialog.exec_()
-            self.goto_admin_clicked()
+                    self.error_dialog.setIcon(QtWidgets.QMessageBox.Warning)
+                    self.error_dialog.setText('Error in saving data.\nMust be the following reasons: \n1. Attendance.xlsx is not present in the current directory\n2. Attendance.xlsx is not in the correct format\n3. Roll number is not a number')
+                    self.error_dialog.exec_()
+            self.login()
+    
     def admin_logout_clicked(self):
+        self.__admin = False
         self.stackedWidget.setCurrentIndex(0)
     
     def click_image(self):
@@ -696,8 +712,8 @@ class Ui_MainWindow(object):
     def delete_employee_from_xl(self):
         print("delete employee from xl")
     
-    def add_employee_in_xl(self):
-        print("add employee to xl")
+    def add_employee_clicked(self):
+        self.stackedWidget.setCurrentIndex(4)
     
     def upload_image(self):
         fileDialog = QtWidgets.QFileDialog()
