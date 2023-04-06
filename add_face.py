@@ -5,12 +5,11 @@ import openpyxl
 import face_recognition
 
 def add_the_face():
-    ######### if these directory doesn't exist, make them #######
+    ######### if this directory doesn't exist, make them #######
     try:
         os.makedirs('images')
     except:
         pass
-
     ############### take name and roll no as input #################
     print("Enter student's details:")
     roll = input('Roll number: ')
@@ -57,7 +56,6 @@ def add_the_face():
                 sheet.cell(row=last_row + 1, column=3).value = email
                 sheet.cell(row=last_row + 1, column=4).value = parent_name
                 sheet.cell(row=last_row + 1, column=5).value = parent_email
-
                 for sheet_name in workbook.sheetnames:
                     if sheet_name == 'Details':
                         continue

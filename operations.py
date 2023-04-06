@@ -101,7 +101,7 @@ def send_email(receiver, subject=None, data=None):
     s.login("d2021.piyush.chugeja@ves.ac.in", os.getenv('EMAIL_PASSWORD'))
     sender_email = "d2021.piyush.chugeja@ves.ac.in"
     message = MIMEMultipart("alternative")
-    message["From"] = sender_email
+    message["From"] = "Attendance system"
     message["To"] = receiver['email']
     message["Subject"] = subject if subject is not None else "Attendance report"
     if data is None:
@@ -180,13 +180,13 @@ def send_monthly_attendance(month = datetime.now().strftime("%B")):
     for key, value in member_rows.items():
         if key != 1:
             message = MIMEMultipart("alternative")
-            message["From"] = sender_email
+            message["From"] = "Attendance System"
             total, attended = 0, 0
             for i in range(3, attendance_all.max_column+1):
                 cell = attendance_all.cell(row=key, column=i)
                 total += 1
+                date = attendance_all.cell(row=1, column=i).value
                 if cell.value.startswith("In-time:"):
-                    date = attendance_all.cell(row=1, column=i).value
                     attended += 1
                     in_time = cell.value.split(' ')[1]
                     try:
