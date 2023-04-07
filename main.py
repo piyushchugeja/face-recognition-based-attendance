@@ -742,8 +742,8 @@ class Ui_MainWindow(object):
         while True:
             ret, frame = cap.read()
             cv2.imshow("Clicking image", frame)
-            face_locations = face_recognition.face_locations(frame)
             if cv2.waitKey(1) == 13: # 13 is the ASCII code for the enter key
+                face_locations = face_recognition.face_locations(frame)
                 if len(face_locations) == 1:
                     cv2.imwrite('images/temp.png', frame)
                     self.click_pic.setText('Image clicked')
