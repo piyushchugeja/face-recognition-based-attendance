@@ -16,6 +16,13 @@ def get_dict():
             data[values.row] = [values.value for values in row]
     return data
 
+def get_user_row(emp_id):
+    users = get_dict()
+    for key, value in users.items():
+        if str(value[0]) == str(emp_id):
+            return key
+    return -1
+
 def add_column():
     today = datetime.date(datetime.now())
     curr_month = today.strftime("%B")
@@ -51,45 +58,42 @@ def get_col_name(colnum):
     cell = sheet_obj.cell(row=1, column=colnum)
     return str(cell.value)
 
-def write_attendance_in_xl(name, data, count):
+def write_attendance_in_xl(name, count):
     roll_no = int(name.split('_')[0])
-    stud_name = " ".join(name.split('_')[1:])
     lastColumn = add_column()
     wb_obj = openpyxl.load_workbook(path)
     sheet_obj = wb_obj[datetime.now().strftime("%B")]
-    for key, value in data.items():
-        if stud_name in value and roll_no in value:
-            cell = sheet_obj.cell(row=key, column=lastColumn)
-            print(cell.value)
-            if cell.value == "A":
-                cell.value = 'In-time: ' + str(datetime.now().time()).split('.')[0]
-                count+=1
-            elif cell.value.startswith("In-time:"):
-                in_time = cell.value.split(' ')[1]
-                cell.value = 'In-time: ' + str(in_time) + ' \nOut-time: ' + str(datetime.now().time()).split('.')[0]
+    key = get_user_row(roll_no)
+    if key!=-1:
+        cell = sheet_obj.cell(row=key, column=lastColumn)
+        print(cell.value)
+        if cell.value == "A":
+            cell.value = 'In-time: ' + str(datetime.now().time()).split('.')[0]
+            count+=1
+        elif cell.value.startswith("In-time:"):
+            in_time = cell.value.split(' ')[1]
+            cell.value = 'In-time: ' + str(in_time) + ' \nOut-time: ' + str(datetime.now().time()).split('.')[0]
     wb_obj.save(path)
     return count
 
-def fetch_attendance(data):
+def fetch_attendance():
     wb_obj = openpyxl.load_workbook(path)
     sheet_obj = wb_obj[datetime.now().strftime("%B")]
-    roll_no = int(input("Enter your roll number: "))
-    for key, value in data.items():
-        if roll_no in value:
-            attendance_records = PrettyTable(['Date', 'In-time', 'Out-time', 'Hours'])
-            print("\nAttendance records for the month of ", datetime.now().strftime("%B"))
-            print ("Name: ", value[1])
-            for i in range(3, sheet_obj.max_column+1):
-                cell = sheet_obj.cell(row=key, column=i)
-                if cell.value.startswith("In-time:"):
-                    in_time = cell.value.split(' ')[1]
-                    out_time = cell.value.split(' ')[3]
-                    hours = str((datetime.strptime(out_time, '%H:%M:%S') - datetime.strptime(in_time, '%H:%M:%S')).total_seconds()/3600)[:4]
-                    attendance_records.add_row([get_col_name(i), in_time, out_time, hours])
-                else:
-                    attendance_records.add_row([get_col_name(i), 'A', 'A', 0])
-            print (attendance_records)
-            break
+    roll_no = int(input("Enter employee ID: "))
+    key = get_user_row(roll_no)
+    if key != -1:   
+        attendance_records = PrettyTable(['Date', 'In-time', 'Out-time', 'Hours'])
+        print("\nAttendance records for the month of ", datetime.now().strftime("%B"))
+        for i in range(3, sheet_obj.max_column+1):
+            cell = sheet_obj.cell(row=key, column=i)
+            if cell.value.startswith("In-time:"):
+                in_time = cell.value.split(' ')[1]
+                out_time = cell.value.split(' ')[3]
+                hours = str((datetime.strptime(out_time, '%H:%M:%S') - datetime.strptime(in_time, '%H:%M:%S')).total_seconds()/3600)[:4]
+                attendance_records.add_row([get_col_name(i), in_time, out_time, hours])
+            else:
+                attendance_records.add_row([get_col_name(i), 'A', 'A', 0])
+        print (attendance_records)
     else:
         print("\nNo record found for this roll number.")
     print("\n")
@@ -249,3 +253,23 @@ def send_monthly_attendance(month = datetime.now().strftime("%B")):
             print("Sending email to {receiver[name]} {receiver[email]}...".format(receiver=receiver))
             s.send_message(message)
     s.quit()
+
+def delete_user(row, emp_id):
+    workbook = openpyxl.load_workbook(path)
+    details = workbook['Details']
+    emp_name = details.cell(row=row, column=2).value
+    details.delete_rows(row)
+    for sheet in workbook.sheetnames:
+        if sheet != 'Details':
+            workbook[sheet].delete_rows(row)
+    if os.path.isfile('images/' + emp_id + '_' + emp_name.replace(' ', '_') + '.png'):
+        os.remove('images/' + emp_id + '_' + emp_name.replace(' ', '_') + '.png')
+    elif os.path.isfile('images/' + emp_id + '_' + emp_name.replace(' ', '_') + '.jpg'):
+        os.remove('images/' + emp_id + '_' + emp_name.replace(' ', '_') + '.jpg')
+    elif os.path.isfile('images/' + emp_id + '_' + emp_name.replace(' ', '_') + '.jpeg'):
+        os.remove('images/' + emp_id + '_' + emp_name.replace(' ', '_') + '.jpeg')
+    else:
+        return False
+    workbook.save(path)
+    return True
+    

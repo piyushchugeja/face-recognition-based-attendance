@@ -7,6 +7,7 @@ import re
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         self.__admin = False
+        self.__picture_clicked = False
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(415, 455)
         MainWindow.setMinimumSize(QtCore.QSize(415, 455))
@@ -165,6 +166,13 @@ class Ui_MainWindow(object):
         self.gridLayout_3.setHorizontalSpacing(10)
         self.gridLayout_3.setVerticalSpacing(27)
         self.gridLayout_3.setObjectName("gridLayout_3")
+        self.admin_name = QtWidgets.QLineEdit(self.gridLayoutWidget_3)
+        font = QtGui.QFont()
+        font.setFamily("Lucida Bright")
+        font.setPointSize(12)
+        self.admin_name.setFont(font)
+        self.admin_name.setObjectName("admin_name")
+        self.gridLayout_3.addWidget(self.admin_name, 2, 1, 1, 1)
         self.admin_password = QtWidgets.QLineEdit(self.gridLayoutWidget_3)
         font = QtGui.QFont()
         font.setFamily("Lucida Bright")
@@ -189,13 +197,6 @@ class Ui_MainWindow(object):
         self.admin_login_btn.setObjectName("admin_login_btn")
         self.admin_login_btn.clicked.connect(self.login)
         self.gridLayout_3.addWidget(self.admin_login_btn, 4, 1, 1, 1, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
-        self.admin_name = QtWidgets.QLineEdit(self.gridLayoutWidget_3)
-        font = QtGui.QFont()
-        font.setFamily("Lucida Bright")
-        font.setPointSize(12)
-        self.admin_name.setFont(font)
-        self.admin_name.setObjectName("admin_name")
-        self.gridLayout_3.addWidget(self.admin_name, 2, 1, 1, 1)
         self.label_16 = QtWidgets.QLabel(self.gridLayoutWidget_3)
         font = QtGui.QFont()
         font.setFamily("Lucida Bright")
@@ -634,7 +635,10 @@ class Ui_MainWindow(object):
         email = self.emp_email.text()
         phone = self.emp_phno.text()
         dob = self.emp_dob.text()
-        picture = self.upload_pic.text()
+        if self.__picture_clicked:
+            picture = 'images/temp.png'
+        else:
+            picture = self.upload_pic.text()
         email_pattern = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
         phone_pattern = re.compile(r"^[0-9]{10}$")
         emp_id_pattern = re.compile(r"^[0-9]{2,}$")
@@ -672,6 +676,8 @@ class Ui_MainWindow(object):
                 self.error_dialog.exec_()
             else:
                 shutil.copy(picture, 'images/' + imageName + '.png')
+                if os.path.isfile('images/temp.png'):
+                    os.remove('images/temp.png')
                 try:
                     workbook = openpyxl.load_workbook('Attendance.xlsx')
                     sheet = workbook['Details']
@@ -706,14 +712,58 @@ class Ui_MainWindow(object):
         self.__admin = False
         self.stackedWidget.setCurrentIndex(0)
     
-    def click_image(self):
-        print("click image")
-    
     def delete_employee_from_xl(self):
-        print("delete employee from xl")
+        emp_id = self.del_emp_id.text()
+        emp_id_pattern = re.compile(r'^[0-9]{2,}$')
+        if emp_id_pattern.match(emp_id):
+            row = get_user_row(emp_id)
+            if row == -1:
+                self.error_dialog.setText("User not found! Please try again.")
+                self.error_dialog.exec_()
+            else:
+                if delete_user(row, emp_id):
+                    self.error_dialog.setIcon(QtWidgets.QMessageBox.Information)
+                    self.error_dialog.setText("User deleted successfully")
+                    self.error_dialog.exec_()
+                else:
+                    self.error_dialog.setText("Error in deleting user. Please try again.")
+                    self.exec_()
+                self.login()
     
     def add_employee_clicked(self):
         self.stackedWidget.setCurrentIndex(4)
+    
+    def click_image(self):
+        cap = cv2.VideoCapture(0)
+        if not cap.isOpened():
+            self.error_dialog.setText("Camera not found")
+            self.error_dialog.exec_()
+            exit()
+        while True:
+            ret, frame = cap.read()
+            cv2.imshow("Clicking image", frame)
+            face_locations = face_recognition.face_locations(frame)
+            if cv2.waitKey(1) == 13: # 13 is the ASCII code for the enter key
+                if len(face_locations) == 1:
+                    cv2.imwrite('images/temp.png', frame)
+                    self.click_pic.setText('Image clicked')
+                    self.click_pic.setStyleSheet("background-color: rgb(0, 255, 0);")
+                    self.click_pic.setEnabled(False)
+                    self.upload_pic.setEnabled(False)
+                    self.error_dialog.setIcon(QtWidgets.QMessageBox.Information)
+                    self.error_dialog.setText("Image clicked successfully")
+                    self.error_dialog.exec_()
+                    self.__picture_clicked = True
+                    break
+                else:
+                    self.error_dialog.setText("There must be exactly one person in the frame")
+                    self.error_dialog.exec_()
+                    break
+            elif cv2.waitKey(1) == 27: # 27 is the ASCII code for the escape key
+                break
+        # Release the camera and close all windows
+        cap.release()
+        cv2.destroyAllWindows()
     
     def upload_image(self):
         fileDialog = QtWidgets.QFileDialog()
@@ -725,10 +775,12 @@ class Ui_MainWindow(object):
             self.upload_pic.setText(file_name)
             self.upload_pic.setStyleSheet("color: green")
             self.upload_pic.setEnabled(False)
+            self.click_pic.setEnabled(False)
+            self.__picture_clicked = False
 
     def back_admin(self):
         self.stackedWidget.setCurrentIndex(3)
-    
+   
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)

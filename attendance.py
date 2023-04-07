@@ -43,7 +43,7 @@ def take_attendance():
         encodesCurrentFrame = face_recognition.face_encodings(faces, facesCurrentFrame)
 
         for encodeFace, faceLoc in zip(encodesCurrentFrame, facesCurrentFrame):
-            matches = face_recognition.compare_faces(encodeListKnown, encodeFace)
+            matches = face_recognition.compare_faces(encodeListKnown, encodeFace, tolerance=0.5)
             faceDis = face_recognition.face_distance(encodeListKnown, encodeFace)
             matchIndex = np.argmin(faceDis)
 
@@ -56,7 +56,7 @@ def take_attendance():
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 cv2.rectangle(frame, (x1, y2 - 35), (x2, y2), (0, 255, 0), cv2.FILLED)
                 cv2.putText(frame, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
-                count = write_attendance_in_xl(name, get_dict(), count)
+                count = write_attendance_in_xl(name, count)
         cv2.imshow('Taking attendance', frame)
         if cv2.waitKey(1) == 13:
             break
@@ -87,7 +87,7 @@ def cli_execution():
         if choice == "1":
             take_attendance()
         elif choice == "2":
-            fetch_attendance(get_dict())
+            fetch_attendance()
         elif choice == "3":
             while passwordCount < 3:
                 password = input('Enter password or enter -1 to exit: ')
