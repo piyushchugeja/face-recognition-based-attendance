@@ -36,6 +36,8 @@ def take_attendance():
     cap = cv2.VideoCapture(0)
     while True:
         ret, frame = cap.read()
+        while not ret:
+            ret, frame = cap.read()
         faces = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
         faces = cv2.cvtColor(faces, cv2.COLOR_BGR2RGB)
 

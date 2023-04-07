@@ -744,6 +744,8 @@ class Ui_MainWindow(object):
             exit()
         while True:
             ret, frame = cap.read()
+            while not ret:
+                ret, frame = cap.read()
             cv2.imshow("Clicking image", frame)
             if cv2.waitKey(1) == 13: # 13 is the ASCII code for the enter key
                 face_locations = face_recognition.face_locations(frame)
