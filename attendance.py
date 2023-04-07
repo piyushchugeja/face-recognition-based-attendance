@@ -13,7 +13,7 @@ def faceEncodings(images):
         encodeList.append(encode)
     return encodeList
 
-def take_attendance():
+def takeattendance():
     count = 0
     path = 'images'
     images = []
@@ -45,10 +45,9 @@ def take_attendance():
         encodesCurrentFrame = face_recognition.face_encodings(faces, facesCurrentFrame)
 
         for encodeFace, faceLoc in zip(encodesCurrentFrame, facesCurrentFrame):
-            matches = face_recognition.compare_faces(encodeListKnown, encodeFace, tolerance=0.5)
+            matches = face_recognition.compare_faces(encodeListKnown, encodeFace, tolerance=0.4)
             faceDis = face_recognition.face_distance(encodeListKnown, encodeFace)
             matchIndex = np.argmin(faceDis)
-
             if matches[matchIndex]:
                 name = personNames[matchIndex]
                 if name not in attendanceList:
@@ -89,7 +88,7 @@ def cli_execution():
         print('Press 4 to exit')
         choice = input('Enter your choice: ')
         if choice == "1":
-            take_attendance()
+            takeattendance()
         elif choice == "2":
             fetch_attendance()
         elif choice == "3":

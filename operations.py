@@ -23,6 +23,14 @@ def get_user_row(emp_id):
             return key
     return -1
 
+def getMonthNames():
+    worbook = openpyxl.load_workbook(path)
+    months = []
+    for sheet in worbook.sheetnames:
+        if sheet != 'Details':
+            months.append(sheet)
+    return months
+
 def add_column():
     today = datetime.date(datetime.now())
     curr_month = today.strftime("%B")
@@ -99,71 +107,6 @@ def fetch_attendance():
     print("\n")
     input("Press any key to continue...")
 
-def send_email(receiver, subject=None, data=None):
-    s = smtplib.SMTP('smtp.gmail.com', 587)
-    s.starttls()
-    s.login("d2021.piyush.chugeja@ves.ac.in", os.getenv('EMAIL_PASSWORD'))
-    sender_email = "d2021.piyush.chugeja@ves.ac.in"
-    message = MIMEMultipart("alternative")
-    message["From"] = "Attendance system"
-    message["To"] = receiver['email']
-    message["Subject"] = subject if subject is not None else "Attendance report"
-    if data is None:
-        text = """\
-        Hi {receiver[name]},
-        Your attendance for this month is {receiver[attendance]}%.
-        """.format(receiver=receiver)
-        html = """\
-        <html>
-            <body>
-                <h1 align='center'>Email from attendance system</h1>
-                <hr>
-                <p>
-                    Hi {receiver[name]},<br>
-                    Your attendance for this month is {receiver[attendance]}%.<br>
-                </p>
-                """ + """
-            </body>
-        </html>
-        """.format(receiver=receiver)
-    else:
-        text = data
-        html = """\
-        <html>
-            <body>
-                <h1 align='center'>Email from attendance system</h1>
-                <hr>
-                <p>
-                    {data}
-                </p>
-            </body>
-        </html>
-        """.format(data=data)
-    part1 = MIMEText(text, "plain")
-    part2 = MIMEText(html, "html")
-    message.attach(part1)
-    message.attach(part2)
-    s.sendmail(sender_email, receiver['email'], message.as_string())
-    s.quit()
-
-def calculate_attendance(data):
-    wb_obj = openpyxl.load_workbook(path)
-    sheet_obj = wb_obj[datetime.now().strftime("%B")]
-    for key, value in data.items():
-        if key!=1:
-            total_classes = 0
-            attended_classes = 0
-            for i in range(3, sheet_obj.max_column+1):
-                cell = sheet_obj.cell(row=key, column=i)
-                if cell.value.startswith("In-time:"):
-                    total_classes += 1
-                    attended_classes += 1
-                elif cell.value == "A":
-                    total_classes += 1
-            attendance = round((attended_classes/total_classes)*100, 2)
-            receiver = {'email':value[4], 'name':value[1], 'attendance':attendance}
-            send_email(receiver)
-
 def send_monthly_attendance(month = datetime.now().strftime("%B")):
     s = smtplib.SMTP('smtp.gmail.com', 587)
     s.starttls()
@@ -172,23 +115,24 @@ def send_monthly_attendance(month = datetime.now().strftime("%B")):
     workbook = openpyxl.load_workbook(path)
     attendance_all = workbook[month]
     member_rows = get_dict()
-    attendance_html_table = '''
-    <table border="1" style="border-collapse: collapse; width: 100%;">
-        <tr>
-            <th>Date</th>
-            <th>In-time</th>
-            <th>Out-time</th>
-            <th>Hours</th>
-        </tr>
-    '''
     for key, value in member_rows.items():
         if key != 1:
+            attendance_html_table = '''
+            <table border="1" style="border-collapse: collapse; width: 100%;">
+                <tr>
+                    <th>Date</th>
+                    <th>In-time</th>
+                    <th>Out-time</th>
+                    <th>Hours</th>
+                </tr>
+            '''
             message = MIMEMultipart("alternative")
             message["From"] = "Attendance System"
-            total, attended = 0, 0
+            total, attended, totalHours, userHours = 0, 0, 0, 0
             for i in range(3, attendance_all.max_column+1):
                 cell = attendance_all.cell(row=key, column=i)
                 total += 1
+                totalHours += 6
                 date = attendance_all.cell(row=1, column=i).value
                 if cell.value.startswith("In-time:"):
                     attended += 1
@@ -196,6 +140,10 @@ def send_monthly_attendance(month = datetime.now().strftime("%B")):
                     try:
                         out_time = cell.value.split(' ')[3]
                         hours = str((datetime.strptime(out_time, '%H:%M:%S') - datetime.strptime(in_time, '%H:%M:%S')).total_seconds()/3600)[:4]   
+                        userHours += float(hours)
+                        color = 'white'
+                        if float(hours) < 6:
+                            color = 'yellow'
                     except:
                         out_time = "Unavailable"
                         hours = "-"
@@ -204,9 +152,9 @@ def send_monthly_attendance(month = datetime.now().strftime("%B")):
                         <td>{date}</td>
                         <td>{in_time}</td>
                         <td>{out_time}</td>
-                        <td>{hours}</td>
+                        <td style='background: {color};'>{hours}</td>
                     </tr>
-                    '''.format(date=date, in_time=in_time, out_time=out_time, hours=hours)
+                    '''.format(date=date, in_time=in_time, out_time=out_time, hours=hours, color=color)
                 else:
                     attendance_html_table += '''
                     <tr>
@@ -217,12 +165,18 @@ def send_monthly_attendance(month = datetime.now().strftime("%B")):
                     </tr>
                     '''.format(date=date)
             attendance = round((attended/total)*100, 2)
+            requiredHours = totalHours - userHours
+            if not requiredHours <= 0:
+                requiredMessage = "You need to work for {requiredHours} more hours to complete your monthly target.".format(requiredHours=requiredHours)
+            else:
+                requiredMessage = "You have completed your monthly target."
             attendance_html_table += '''
             </table>
             <br>
             <p>
                 Overall attendance for {month} is {attendance}%.
-            '''.format(month=month, attendance=attendance)
+                {requiredMessage}
+            '''.format(month=month, attendance=attendance, requiredMessage=requiredMessage)
             receiver = {'email':value[2], 'name':value[1]}
             
             text = """\
