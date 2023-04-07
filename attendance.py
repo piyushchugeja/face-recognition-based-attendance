@@ -72,11 +72,13 @@ def take_attendance():
         print("No student was detected")
 
 def cli_execution():
+
     try:
         os.makedirs('images')
     except:
         pass
     choice = 0
+    passwordCount = 0
     while choice != "4":
         os.system('cls')
         print('Press 1 to take attendance')
