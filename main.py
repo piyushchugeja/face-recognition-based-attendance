@@ -710,6 +710,9 @@ class Ui_MainWindow(object):
     
     def admin_logout_clicked(self):
         self.__admin = False
+        self.admin_name.setText("")
+        self.admin_name.setPlaceholderText("Username")
+        self.admin_password.setText("")
         self.stackedWidget.setCurrentIndex(0)
     
     def delete_employee_from_xl(self):
