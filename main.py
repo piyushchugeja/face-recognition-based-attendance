@@ -595,7 +595,6 @@ class Ui_MainWindow(object):
         self.error_dialog.setText("Camera is starting...")
         self.error_dialog.exec_()
         
-        
     def check_attendance_clicked(self):
         data = get_dict()
         wb_obj = openpyxl.load_workbook(path)
@@ -742,6 +741,20 @@ class Ui_MainWindow(object):
                     self.error_dialog.setText('Error in saving data.\nMust be the following reasons: \n1. Attendance.xlsx is not present in the current directory\n2. Attendance.xlsx is not in the correct format\n3. Roll number is not a number')
                     self.error_dialog.exec_()
             self.login()
+            self.resetAddForm()
+    
+    def resetAddForm(self):
+        self.emp_id.setText("")
+        self.emp_name.setText("")
+        self.emp_id.setText("")
+        self.emp_name.setText("")
+        self.emp_email.setText("")
+        self.emp_phno.setText("")
+        self.upload_pic.setText("Upload")
+        self.click_pic.setText("Click")
+        self.upload_pic.setEnabled(True)
+        self.click_pic.setEnabled(True)
+        self.__picture_clicked = False
     
     def admin_logout_clicked(self):
         self.__admin = False

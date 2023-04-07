@@ -73,7 +73,6 @@ def takeattendance():
         print("No student was detected")
 
 def cli_execution():
-
     try:
         os.makedirs('images')
     except:
