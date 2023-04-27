@@ -36,3 +36,7 @@ python main.py
 4. Click on `View attendance` button to view attendance report
 
 ## Screenshots
+![image](https://user-images.githubusercontent.com/66639966/234917083-55d324e8-ef0e-484b-8179-7bca042f8973.png)
+![image](https://user-images.githubusercontent.com/66639966/234917168-2cf2628d-1bdd-46cc-8166-5f16c0f9f3b9.png)
+![image](https://user-images.githubusercontent.com/66639966/234917187-bd6460a1-d6ee-4f64-8561-294e93d7103c.png)
+![image](https://user-images.githubusercontent.com/66639966/234917224-5f75fb8e-86e8-49bb-9438-fd797497c777.png)
