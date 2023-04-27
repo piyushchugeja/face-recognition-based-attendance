@@ -841,7 +841,7 @@ class Ui_MainWindow(object):
         self.error_dialog.exec_()
         mailer = threading.Thread(target=send_monthly_attendance, args=(month,))
         mailer.start()
-   
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
