@@ -28,7 +28,7 @@ pip install -r requirements.txt
 ```
 3. Run the app
 ```sh
-python app.py
+python main.py
 ```
 
 ## Usage
@@ -36,3 +36,5 @@ python app.py
 2. Add images of people to be recognized in the `images` folder via the admin section of the app
 3. Click on `Take attendance` button to take attendance
 4. Click on `View attendance` button to view attendance report
+
+## Screenshots
