@@ -74,7 +74,6 @@ def write_attendance_in_xl(name, count):
     key = get_user_row(roll_no)
     if key!=-1:
         cell = sheet_obj.cell(row=key, column=lastColumn)
-        print(cell.value)
         if cell.value == "A":
             cell.value = 'In-time: ' + str(datetime.now().time()).split('.')[0]
             count+=1
@@ -83,29 +82,6 @@ def write_attendance_in_xl(name, count):
             cell.value = 'In-time: ' + str(in_time) + ' \nOut-time: ' + str(datetime.now().time()).split('.')[0]
     wb_obj.save(path)
     return count
-
-def fetch_attendance():
-    wb_obj = openpyxl.load_workbook(path)
-    sheet_obj = wb_obj[datetime.now().strftime("%B")]
-    roll_no = int(input("Enter employee ID: "))
-    key = get_user_row(roll_no)
-    if key != -1:   
-        attendance_records = PrettyTable(['Date', 'In-time', 'Out-time', 'Hours'])
-        print("\nAttendance records for the month of ", datetime.now().strftime("%B"))
-        for i in range(3, sheet_obj.max_column+1):
-            cell = sheet_obj.cell(row=key, column=i)
-            if cell.value.startswith("In-time:"):
-                in_time = cell.value.split(' ')[1]
-                out_time = cell.value.split(' ')[3]
-                hours = str((datetime.strptime(out_time, '%H:%M:%S') - datetime.strptime(in_time, '%H:%M:%S')).total_seconds()/3600)[:4]
-                attendance_records.add_row([get_col_name(i), in_time, out_time, hours])
-            else:
-                attendance_records.add_row([get_col_name(i), 'A', 'A', 0])
-        print (attendance_records)
-    else:
-        print("\nNo record found for this roll number.")
-    print("\n")
-    input("Press any key to continue...")
 
 def send_monthly_attendance(month = datetime.now().strftime("%B")):
     s = smtplib.SMTP('smtp.gmail.com', 587)
@@ -226,4 +202,3 @@ def delete_user(row, emp_id):
         return False
     workbook.save(path)
     return True
-    
